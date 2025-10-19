@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>抽籤與分組工具</title>
+    <style>
+        :root {
+            --primary-color: #0055A4;
+            --primary-hover: #003E7A;
+            --accent-color: #00A38D;
+            --accent-hover: #008873;
+            --secondary-color: #f3f4f6;
+            --success-color: #10b981;
+            --error-color: #ef4444;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --border-color: #d1d5db;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-image: url('bg.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            min-height: 100vh;
+            color: var(--text-primary);
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(0, 85, 164, 0.1) 0%, rgba(0, 163, 141, 0.1) 100%);
+            backdrop-filter: blur(1px);
+            z-index: -1;
+        }
+
+        .banner {
+            background: rgba(255, 255, 255, 0.95);
+            border: 2px var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-top: 1rem;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+			box-shadow: var(--shadow-lg);
+        }
+
+        .banner-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .banner-logo {
+            height: 100px;
+            width: auto;
+            object-fit: contain;
+            display: block;
+        }
+
+        .brand-x {
+            font-weight: 900;
+            line-height: 1;
+            display: inline-flex;
+            align-items: center;
+            font-size: 92px;
+            color: #3C3C3C;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .panel {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
+            height: fit-content;
+            backdrop-filter: blur(10px);
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 2rem;
+            background: var(--secondary-color);
+            border-radius: 12px;
+            padding: 0.5rem;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            text-align: center;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            color: var(--text-secondary);
+        }
+
+        .tab.active {
+            background: var(--primary-color);
+            color: white;
+            box-shadow: var(--shadow);
+        }
+
+        .section {
+            margin-bottom: 2rem;
+        }
+
+        .section h3 {
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .tag-count {
+            background: var(--accent-color);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 85, 164, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn:hover:not(:disabled) {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn:disabled {
+            background: var(--border-color);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: var(--accent-hover);
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+        }
+
+        .action-section {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .action-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .action-count {
+            background: var(--accent-color);
+            color: white;
+            padding: 0.2rem 0.6rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            min-height: 50px;
+            padding: 1rem;
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+        }
+
+        .tag {
+            background: var(--primary-color);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tag-remove {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .tag-remove:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .results {
+            min-height: 200px;
+        }
+
+        .result-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow);
+            animation: slideIn 0.5s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .group-card {
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .group-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        .group-members {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .member-tag {
+            background: var(--secondary-color);
+            color: var(--text-primary);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .member-tag.leader {
+            background: var(--accent-color);
+            color: white;
+            font-weight: 600;
+            position: relative;
+        }
+
+        .lottery-results {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .lottery-card {
+            background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 500;
+            box-shadow: var(--shadow);
+            animation: bounce 0.6s ease;
+        }
+
+        .error-message {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: var(--error-color);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: var(--text-secondary);
+            padding: 3rem;
+            font-size: 1.1rem;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+        }
+
+        .kuse-branding {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 8px 12px;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+        }
+
+        .kuse-branding:hover {
+            color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .kuse-branding svg {
+            height: 1.2em;
+            transition: color 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                background-attachment: scroll;
+            }
+
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .panel {
+                padding: 1.5rem;
+            }
+
+            .banner {
+                margin: 0.5rem;
+                padding: 2rem;
+                font-size: 1rem;
+            }
+
+            .lottery-results {
+                grid-template-columns: 1fr;
+            }
+
+            .kuse-branding {
+                position: static;
+                margin: 2rem auto 1rem;
+                width: fit-content;
+            }
+
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
+            .action-info {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.25rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .banner-logo {
+                height: 44px;
+            }
+
+            .brand-x {
+                font-size: 44px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Banner Section -->
+        <div class="banner" id="banner">
+            <div class="banner-content">
+                <img src="NTUT.png" alt="NTUT Logo" class="banner-logo">
+                <span class="brand-x">×</span>
+                <img src="UTA.png" alt="UTA Logo" class="banner-logo">
+            </div>
+        </div>
+
+        <div class="main-content">
+            <!-- Left Panel - Controls -->
+            <div class="panel">
+                <!-- Tabs -->
+                <div class="tabs">
+                    <button class="tab active" data-tab="lottery" aria-label="切換到抽籤模式">抽籤</button>
+                    <button class="tab" data-tab="grouping" aria-label="切換到分組模式">分組</button>
+                </div>
+
+                <!-- Tag Input Section -->
+                <div class="section">
+                    <div class="section-header">
+                        <h3>標籤管理</h3>
+                        <div class="tag-count" id="tagCountHeader">共 0 個</div>
+                    </div>
+                    
+                    <!-- Individual Add -->
+                    <div class="input-group">
+                        <label for="singleTag">逐一新增</label>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <input type="text" id="singleTag" placeholder="輸入標籤名稱" aria-label="輸入單個標籤">
+                            <button class="btn btn-small" onclick="addSingleTag()" aria-label="新增標籤">新增標籤</button>
+                        </div>
+                    </div>
+
+                    <!-- Batch Add -->
+                    <div class="input-group">
+                        <label for="batchTags">批次貼上</label>
+                        <textarea id="batchTags" placeholder="每行一個標籤，支援批次貼上" aria-label="批次輸入多個標籤"></textarea>
+                        <button class="btn btn-small btn-secondary" onclick="addBatchTags()" style="margin-top: 0.5rem;" aria-label="批次新增標籤">批次新增</button>
+                    </div>
+
+                    <!-- Tags Display -->
+                    <div class="tags-container" id="tagsContainer" aria-label="已新增的標籤列表">
+                        <div class="empty-state" style="width: 100%; padding: 1rem;">尚未新增任何標籤</div>
+                    </div>
+                </div>
+
+                <!-- Lottery Settings -->
+                <div class="section" id="lotterySettings">
+                    <h3>抽籤設定</h3>
+                    <div class="input-group">
+                        <label for="lotteryCount">抽取數量</label>
+                        <input type="number" id="lotteryCount" min="1" value="1" aria-label="設定抽取數量">
+                    </div>
+                    <div class="action-section">
+                        <div class="action-info">
+                            <span>可抽取標籤</span>
+                            <div class="action-count" id="lotteryTagCount">0 個</div>
+                        </div>
+                        <button class="btn" onclick="performLottery()" id="lotteryBtn" disabled aria-label="執行抽籤">🎲 開始抽籤</button>
+                    </div>
+                </div>
+
+                <!-- Grouping Settings -->
+                <div class="section" id="groupingSettings" style="display: none;">
+                    <h3>分組設定</h3>
+                    <div class="input-group">
+                        <label for="groupCount">組數</label>
+                        <input type="number" id="groupCount" min="1" value="2" aria-label="設定分組數量">
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="hasLeader" aria-label="是否指定組長">
+                        <label for="hasLeader">指定組長</label>
+                    </div>
+                    <div class="action-section">
+                        <div class="action-info">
+                            <span>可分組標籤</span>
+                            <div class="action-count" id="groupingTagCount">0 個</div>
+                        </div>
+                        <button class="btn" onclick="performGrouping()" id="groupingBtn" disabled aria-label="執行分組">👥 開始分組</button>
+                    </div>
+                </div>
+
+                <!-- Error Messages -->
+                <div id="errorMessage" class="error-message" style="display: none;" role="alert"></div>
+            </div>
+
+            <!-- Right Panel - Results -->
+            <div class="panel">
+                <div class="section">
+                    <h3 id="resultsTitle">結果顯示</h3>
+                    <div class="results" id="results">
+                        <div class="empty-state">請先新增標籤並執行抽籤或分組</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Kuse Branding -->
+    <a href="https://kuse.ai" class="kuse-branding" target="_blank" rel="noopener noreferrer" aria-label="Visit Kuse website">
+        made with 
+        <svg viewBox="0,0,160,44" xmlns="http://www.w3.org/2000/svg">
+            <path d="m.01,20.65C-.43,8.25,9.3-2.03,22.04.34,34.78,2.72,43.29,8.32,43.29,22.9s-8.66,19.01-22.03,20.3C7.9,44.5.46,33.05.01,20.65z" fill="currentColor"/>
+            <path fill-rule="evenodd" clip-rule="evenodd" d="m146.76,7.94c8.07,0,13.24,6.15,13.24,14.58v1.39h-20.75c.45,4.05,3.51,7.37,8.57,7.37,2.62,0,5.73-1.05,7.62-2.94l2.67,3.83c-2.67,2.55-6.62,3.88-10.9,3.88-8.07,0-14.08-5.6-14.08-14.08,0-7.76,5.67-14.02,13.63-14.02zm0,4.77c-5.01,0-7.29,3.83-7.57,7.1h15.13c-.11-3.16-2.28-7.1-7.57-7.1z" fill="currentColor"/>
+            <path d="m86.64,24.49c0,4.15,2.39,6.84,6.84,6.84,4.4,0,6.84-2.69,6.84-6.84V8.55h5.37v16.33c0,6.7-4.06,11.14-12.21,11.14-8.21,0-12.21-4.5-12.21-11.09V8.55h5.37v15.94zm32.99-16.55c4.49,0,8.06,1.47,10.6,3.86l-2.59,3.81c-2.05-2-5.28-3.08-8.06-3.08-2.88,0-4.84,1.37-4.84,3.32,0,1.91,2.64,2.54,5.81,3.27,4.59,1.08,10.26,2.4,10.26,8.46,0,4.94-3.76,8.41-11.14,8.41-4.98,0-8.94-1.76-11.24-4.11l2.54-4.11c1.86,1.91,5.18,3.67,8.84,3.67,3.91,0,5.57-1.66,5.57-3.62,0-2.3-2.88-2.98-6.21-3.76-4.54-1.08-9.87-2.3-9.87-8.06,0-4.5,4.2-8.06,10.31-8.06zM60.79,20.82,71.44,8.55h6.5L66.46,21.26,78.82,35.44h-6.5l-9.28-11.1-2.25,2.49v8.6h-5.33V8.55h5.33v12.27z" fill="currentColor"/>
+        </svg>
+    </a>
+
+    <script>
+        // Global state
+        let tags = [];
+        let currentMode = `lottery`;
+
+        // Initialize
+        document.addEventListener(`DOMContentLoaded`, function() {
+            // Tab switching
+            document.querySelectorAll(`.tab`).forEach(tab => {
+                tab.addEventListener(`click`, function() {
+                    switchTab(this.dataset.tab);
+                });
+            });
+
+            // Enter key handlers
+            document.getElementById(`singleTag`).addEventListener(`keypress`, function(e) {
+                if (e.key === `Enter`) {
+                    addSingleTag();
+                }
+            });
+
+            updateUI();
+        });
+
+        // Update tag count displays
+        function updateTagCounts() {
+            const count = tags.length;
+            const headerCount = document.getElementById(`tagCountHeader`);
+            const lotteryCount = document.getElementById(`lotteryTagCount`);
+            const groupingCount = document.getElementById(`groupingTagCount`);
+            
+            headerCount.textContent = `共 ${count} 個`;
+            lotteryCount.textContent = `${count} 個`;
+            groupingCount.textContent = `${count} 個`;
+        }
+
+        // Tab switching
+        function switchTab(mode) {
+            currentMode = mode;
+            
+            // Update tab appearance
+            document.querySelectorAll(`.tab`).forEach(tab => {
+                tab.classList.remove(`active`);
+            });
+            document.querySelector(`[data-tab="${mode}"]`).classList.add(`active`);
+
+            // Show/hide settings
+            if (mode === `lottery`) {
+                document.getElementById(`lotterySettings`).style.display = `block`;
+                document.getElementById(`groupingSettings`).style.display = `none`;
+                document.getElementById(`resultsTitle`).textContent = `抽籤結果`;
+            } else {
+                document.getElementById(`lotterySettings`).style.display = `none`;
+                document.getElementById(`groupingSettings`).style.display = `block`;
+                document.getElementById(`resultsTitle`).textContent = `分組結果`;
+            }
+
+            clearResults();
+        }
+
+        // Add single tag
+        function addSingleTag() {
+            const input = document.getElementById(`singleTag`);
+            const tagName = input.value.trim();
+            
+            if (tagName && !tags.includes(tagName)) {
+                tags.push(tagName);
+                input.value = ``;
+                updateUI();
+                hideError();
+            }
+        }
+
+        // Add batch tags
+        function addBatchTags() {
+            const textarea = document.getElementById(`batchTags`);
+            const lines = textarea.value.split(`\n`);
+            
+            lines.forEach(line => {
+                const tagName = line.trim();
+                if (tagName && !tags.includes(tagName)) {
+                    tags.push(tagName);
+                }
+            });
+            
+            textarea.value = ``;
+            updateUI();
+            hideError();
+        }
+
+        // Remove tag
+        function removeTag(index) {
+            tags.splice(index, 1);
+            updateUI();
+        }
+
+        // Update UI
+        function updateUI() {
+            updateTagsDisplay();
+            updateButtons();
+            updateTagCounts();
+        }
+
+        // Update tags display
+        function updateTagsDisplay() {
+            const container = document.getElementById(`tagsContainer`);
+            
+            if (tags.length === 0) {
+                container.innerHTML = `<div class="empty-state" style="width: 100%; padding: 1rem;">尚未新增任何標籤</div>`;
+            } else {
+                container.innerHTML = tags.map((tag, index) => `
+                    <div class="tag">
+                        ${tag}
+                        <button class="tag-remove" onclick="removeTag(${index})" aria-label="移除標籤 ${tag}">×</button>
+                    </div>
+                `).join(``);
+            }
+        }
+
+        // Update buttons
+        function updateButtons() {
+            const lotteryBtn = document.getElementById(`lotteryBtn`);
+            const groupingBtn = document.getElementById(`groupingBtn`);
+            
+            lotteryBtn.disabled = tags.length === 0;
+            groupingBtn.disabled = tags.length === 0;
+        }
+
+		// Fisher–Yates Shuffle
+		function shuffle(array) {
+			let currentIndex = array.length, randomIndex;
+
+			while (currentIndex !== 0) {
+				randomIndex = Math.floor(Math.random() * currentIndex);
+				currentIndex--;
+				[array[currentIndex], array[randomIndex]] = [
+					array[randomIndex], array[currentIndex]
+				];
+			}
+			return array;
+		}
+
+        // Perform lottery
+        function performLottery() {
+            const count = parseInt(document.getElementById(`lotteryCount`).value);
+            
+            if (count > tags.length) {
+                showError(`抽取數量不能大於標籤總數（${tags.length}）`);
+                return;
+            }
+
+            if (count < 1) {
+                showError(`抽取數量必須大於 0`);
+                return;
+            }
+
+            // Shuffle and pick
+            const shuffled = shuffle([...tags]);
+            const winners = shuffled.slice(0, count);
+            
+            displayLotteryResults(winners);
+            hideError();
+        }
+
+        // Perform grouping
+        function performGrouping() {
+            const groupCount = parseInt(document.getElementById(`groupCount`).value);
+            const hasLeader = document.getElementById(`hasLeader`).checked;
+            
+            if (groupCount < 1) {
+                showError(`組數必須大於 0`);
+                return;
+            }
+
+            if (groupCount > tags.length) {
+                showError(`組數不能大於標籤總數（${tags.length}）`);
+                return;
+            }
+
+            // Shuffle tags
+            const shuffled = shuffle([...tags]);
+            
+            // Create groups
+            const groups = [];
+            const baseSize = Math.floor(shuffled.length / groupCount);
+            const remainder = shuffled.length % groupCount;
+            
+            let index = 0;
+            for (let i = 0; i < groupCount; i++) {
+                const groupSize = baseSize + (i < remainder ? 1 : 0);
+                const group = shuffled.slice(index, index + groupSize);
+                
+                // Select leader if needed
+                let leader = null;
+                if (hasLeader && group.length > 0) {
+                    leader = group[Math.floor(Math.random() * group.length)];
+                }
+                
+                groups.push({ members: group, leader: leader });
+                index += groupSize;
+            }
+            
+            displayGroupingResults(groups);
+            hideError();
+        }
+
+        // Display lottery results
+        function displayLotteryResults(winners) {
+            const resultsContainer = document.getElementById(`results`);
+            
+            resultsContainer.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h4>抽中名單（${winners.length} 人）</h4>
+                    <button class="btn btn-small btn-secondary" onclick="performLottery()">重新抽取</button>
+                </div>
+                <div class="lottery-results">
+                    ${winners.map(winner => `
+                        <div class="lottery-card">${winner}</div>
+                    `).join(``)}
+                </div>
+            `;
+        }
+
+        // Display grouping results
+        function displayGroupingResults(groups) {
+            const resultsContainer = document.getElementById(`results`);
+            
+            resultsContainer.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h4>分組結果（${groups.length} 組）</h4>
+                    <button class="btn btn-small btn-secondary" onclick="performGrouping()">重新分組</button>
+                </div>
+                ${groups.map((group, index) => `
+                    <div class="result-card group-card">
+                        <div class="group-title">第 ${index + 1} 組（${group.members.length} 人）</div>
+                        <div class="group-members">
+                            ${group.members.map(member => `
+                                <div class="member-tag ${member === group.leader ? 'leader' : ''}">
+                                    ${member === group.leader ? '🚩 ' : ''}${member}
+                                </div>
+                            `).join(``)}
+                        </div>
+                    </div>
+                `).join(``)}
+            `;
+        }
+
+        // Clear results
+        function clearResults() {
+            document.getElementById(`results`).innerHTML = `<div class="empty-state">請先新增標籤並執行抽籤或分組</div>`;
+        }
+
+        // Show error
+        function showError(message) {
+            const errorDiv = document.getElementById(`errorMessage`);
+            errorDiv.textContent = message;
+            errorDiv.style.display = `block`;
+        }
+
+        // Hide error
+        function hideError() {
+            document.getElementById(`errorMessage`).style.display = `none`;
+        }
+    </script>
+
+    <script src="https://cdn.kuse.ai/sdk.prd.js"></script>
+</body>
+</html>
